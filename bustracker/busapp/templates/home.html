@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% block title %}BusTracker — University Bus Tracking{% endblock %}
+
+{% block extra_styles %}
+.hero {
+min-height: calc(100vh - 60px);
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+text-align: center;
+padding: 48px 20px 60px;
+position: relative;
+overflow: hidden;
+}
+
+/* Subtle animated grid background */
+.hero::before {
+content: '';
+position: absolute;
+inset: 0;
+background-image:
+linear-gradient(rgba(62,232,160,0.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(62,232,160,0.04) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none;
+}
+
+.hero-badge {
+font-family: var(--mono);
+font-size: 11px;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(--accent);
+background: var(--accent-dim);
+border: 1px solid rgba(62,232,160,0.25);
+padding: 5px 16px;
+border-radius: 20px;
+margin-bottom: 28px;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+}
+
+.hero-title {
+font-size: clamp(28px, 6vw, 64px);
+font-weight: 600;
+line-height: 1.1;
+letter-spacing: -1.5px;
+margin-bottom: 20px;
+max-width: 700px;
+}
+
+.hero-title span {
+color: var(--accent);
+}
+
+.hero-sub {
+font-size: 16px;
+color: var(--muted);
+max-width: 460px;
+line-height: 1.6;
+margin-bottom: 40px;
+padding: 0 8px;
+}
+
+.hero-actions {
+display: flex;
+gap: 12px;
+flex-wrap: wrap;
+justify-content: center;
+margin-bottom: 56px;
+}
+
+.hero-actions .btn {
+padding: 13px 28px;
+font-size: 15px;
+}
+
+/* Feature cards */
+.features {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 14px;
+max-width: 860px;
+width: 100%;
+position: relative;
+z-index: 1;
+}
+
+.feature-card {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 20px;
+text-align: left;
+transition: border-color 0.2s;
+}
+
+.feature-card:hover {
+border-color: rgba(62,232,160,0.2);
+}
+
+.feature-icon {
+width: 36px; height: 36px;
+border-radius: 8px;
+background: var(--accent-dim);
+border: 1px solid rgba(62,232,160,0.2);
+display: flex; align-items: center; justify-content: center;
+margin-bottom: 14px;
+font-size: 16px;
+}
+
+.feature-title {
+font-weight: 600;
+font-size: 14px;
+margin-bottom: 6px;
+}
+
+.feature-desc {
+font-size: 13px;
+color: var(--muted);
+line-height: 1.5;
+}
+
+/* ── Tablet ── */
+@media (max-width: 768px) {
+.features {
+grid-template-columns: repeat(2, 1fr);
+gap: 12px;
+padding: 0 4px;
+}
+
+.hero-actions .btn {
+padding: 12px 22px;
+font-size: 14px;
+}
+}
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+.hero {
+padding: 36px 16px 48px;
+}
+
+.hero-badge {
+font-size: 10px;
+letter-spacing: 1.5px;
+padding: 4px 13px;
+margin-bottom: 22px;
+}
+
+.hero-title {
+letter-spacing: -0.8px;
+margin-bottom: 16px;
+}
+
+.hero-sub {
+font-size: 14px;
+margin-bottom: 32px;
+}
+
+.hero-actions {
+flex-direction: column;
+align-items: stretch;
+width: 100%;
+max-width: 300px;
+gap: 10px;
+margin-bottom: 44px;
+}
+
+.hero-actions .btn {
+justify-content: center;
+padding: 13px 20px;
+font-size: 15px;
+}
+
+.features {
+grid-template-columns: 1fr;
+gap: 10px;
+}
+
+.feature-card {
+padding: 16px;
+display: flex;
+align-items: flex-start;
+gap: 14px;
+}
+
+.feature-icon {
+margin-bottom: 0;
+flex-shrink: 0;
+}
+
+.feature-content {}
+}
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-badge">
+        <span class="dot"
+            style="width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block;"></span>
+        University Bus Tracker
+    </div>
+
+    <h1 class="hero-title">
+        Know exactly where<br>your <span>bus is</span> right now
+    </h1>
+
+    <p class="hero-sub">
+        Real-time GPS tracking for every university bus.
+        No more waiting at the stop wondering if it's coming.
+    </p>
+
+    <div class="hero-actions">
+        <a href="{% url 'student_map' %}" class="btn btn-primary">
+            View Live Map
+        </a>
+        <a href="{% url 'supervisor_panel' %}" class="btn btn-ghost">
+            Supervisor Login
+        </a>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <div class="feature-content">
+                <div class="feature-title">Live GPS Location</div>
+                <div class="feature-desc">See every bus move on the map in real-time as the supervisor shares location.
+                </div>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-content">
+                <div class="feature-title">Instant Updates</div>
+                <div class="feature-desc">WebSocket connection means zero delay — updates arrive the moment the bus
+                    moves.</div>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🚌</div>
+            <div class="feature-content">
+                <div class="feature-title">Speed & Route Info</div>
+                <div class="feature-desc">See current speed, route name, and coordinates for every active bus on campus.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

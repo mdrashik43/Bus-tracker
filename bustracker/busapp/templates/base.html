@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}BusTracker{% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #0b0f1a;
+            --surface: #131929;
+            --surface2: #1a2235;
+            --border: rgba(255, 255, 255, 0.07);
+            --accent: #3ee8a0;
+            --accent-dim: rgba(62, 232, 160, 0.15);
+            --warning: #f5a623;
+            --danger: #f05252;
+            --text: #e8eaf0;
+            --muted: #7a8499;
+            --font: 'DM Sans', sans-serif;
+            --mono: 'Space Mono', monospace;
+            --radius: 12px;
+            --nav-h: 60px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ───────────────────────────────────────────────────── */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: var(--nav-h);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            gap: 12px;
+        }
+
+        .nav-logo {
+            font-family: var(--mono);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .nav-logo .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(62, 232, 160, 0.4)
+            }
+
+            50% {
+                opacity: .7;
+                box-shadow: 0 0 0 6px rgba(62, 232, 160, 0)
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text);
+            background: var(--surface2);
+        }
+
+        .nav-badge {
+            font-size: 11px;
+            font-family: var(--mono);
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(62, 232, 160, 0.25);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        /* ── BUTTONS ───────────────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #0b0f1a;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .btn-danger {
+            background: rgba(240, 82, 82, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(240, 82, 82, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(240, 82, 82, 0.25);
+        }
+
+        /* ── STATUS PILLS ──────────────────────────────────────────── */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-family: var(--mono);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .status-pill.online {
+            background: rgba(62, 232, 160, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(62, 232, 160, 0.25);
+        }
+
+        .status-pill.offline {
+            background: rgba(240, 82, 82, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(240, 82, 82, 0.25);
+        }
+
+        .status-pill.moving {
+            background: rgba(245, 166, 35, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(245, 166, 35, 0.25);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        /* ── MOBILE NAV (<480px) ───────────────────────────────────── */
+        @media (max-width: 480px) {
+            nav {
+                padding: 0 14px;
+            }
+
+            .nav-logo {
+                font-size: 13px;
+            }
+
+            .nav-links a {
+                font-size: 12px;
+                padding: 5px 9px;
+            }
+
+            .nav-badge {
+                font-size: 10px;
+                padding: 3px 8px;
+                max-width: 80px;
+            }
+
+            .btn {
+                padding: 9px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-logo">
+            <span class="dot"></span>
+            BusTracker
+        </div>
+        <div class="nav-links">
+            <a href="/map/" id="nav-map">Live Map</a>
+            <a href="/supervisor/" id="nav-supervisor">Supervisor</a>
+            {% if user.is_staff %}<a href="/admin/">Admin</a>{% endif %}
+        </div>
+        {% if user.is_authenticated %}
+        <span class="nav-badge">{{ user.username }}</span>
+        {% else %}
+        <a href="/accounts/login/" class="btn btn-ghost" style="font-size:13px;padding:6px 14px;">Login</a>
+        {% endif %}
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var path = window.location.pathname;
+        if (path.indexOf('/map') !== -1) document.getElementById('nav-map').classList.add('active');
+        if (path.indexOf('/supervisor') !== -1) document.getElementById('nav-supervisor').classList.add('active');
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>
