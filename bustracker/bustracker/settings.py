@@ -1,20 +1,21 @@
 """
 Django settings for bustracker project.
 """
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-xujj_m(x8^)5^y)wj1)zwl*9flbscw1=4^27)b1!r*+w87hl3&'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-xujj_m(x8^)5^y)wj1)zwl*9flbscw1=4^27)b1!r*+w87hl3&')
 
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition
 INSTALLED_APPS = [
-    'daphne',                                # must be FIRST before django.contrib.staticfiles
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,10 +53,10 @@ TEMPLATES = [
     },
 ]
 
-# ASGI application — required for Django Channels
+# WSGI & ASGI
+WSGI_APPLICATION = 'bustracker.wsgi.application'
 ASGI_APPLICATION = 'bustracker.asgi.application'
 
-# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -63,25 +64,12 @@ DATABASES = {
     }
 }
 
-# Channel Layers — use Redis in production, InMemory for local testing
-# Option A: InMemory (no Redis needed, good for testing now)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
-# Option B: Redis (uncomment when Redis is running)
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             'hosts': [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
-
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -98,6 +86,5 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Login redirect
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
